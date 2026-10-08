@@ -1,0 +1,51 @@
+name: Publicar release
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: ID da corrida que gerou o exe
+        required: true
+        type: string
+  workflow_run:
+    workflows: ["Cliente Windows Globalpac"]
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: write
+
+env:
+  VERSION: "1.5.0"
+
+jobs:
+  release:
+    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar exe
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: Globalpac-${{ env.VERSION }}-x86_64
+          path: dist
+          run-id: ${{ github.event_name == 'workflow_dispatch' && inputs.run_id || github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publicar release
+        uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
+        with:
+          tag_name: v${{ env.VERSION }}
+          name: Globalpac ${{ env.VERSION }}
+          target_commitish: ${{ github.event.workflow_run.head_sha || github.sha }}
+          make_latest: true
+          overwrite_files: true
+          fail_on_unmatched_files: true
+          files: dist/Globalpac-${{ env.VERSION }}-x86_64.exe
+          body: |
+            Cliente Windows da Globalpac, baseado no RustDesk ${{ env.VERSION }} (AGPL-3.0).
+
+            Servidor gravado: rustdesk.globalpac.com.br
+
+            O programa mantém a frase Powered by RustDesk. Não está assinado, por isso o SmartScreen avisa na primeira abertura.
+
+            Código: https://github.com/Globalpac/Globalpac-Remote e https://github.com/rustdesk/rustdesk/tree/1.5.0

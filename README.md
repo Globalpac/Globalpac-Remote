@@ -15,6 +15,6 @@ O ficheiro interno continua a chamar-se `rustdesk.exe`. Não há certificado de 
 
 ## Compilar
 
-O fluxo [Cliente Windows Globalpac](../../actions/workflows/windows.yml) corre em cada push na `main` e também pode ser disparado à mão. O artefacto é `Globalpac-1.5.0-x86_64.exe`.
+O fluxo [Cliente Windows Globalpac](https://github.com/Globalpac/Globalpac-Remote/actions/workflows/windows.yml) corre em cada push na `main` e também pode ser disparado à mão. Quando o `.exe` fica pronto, o fluxo [Publicar release](https://github.com/Globalpac/Globalpac-Remote/actions/workflows/release.yml) cria a release [v1.5.0](https://github.com/Globalpac/Globalpac-Remote/releases/tag/v1.5.0) com `Globalpac-1.5.0-x86_64.exe`.
 
 A compilação usa o runner do GitHub. Este PC não precisa de Rust, Flutter nem Visual Studio.
