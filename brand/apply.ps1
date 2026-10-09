@@ -81,6 +81,7 @@ pub fn globalpac_apply_incoming() {
 '@
 $marker = $marker.Replace("`r`n", "`n")
 Replace-Once -Path $common -Old "fn read_custom_client_advanced_settings(" -New ($marker + "fn read_custom_client_advanced_settings(")
-Replace-Once -Path (Join-Path $root "src\core_main.rs") -Old "crate::portable_service::client::set_quick_support(_is_quick_support);" -New "crate::portable_service::client::set_quick_support(_is_quick_support);`r`n        if _is_quick_support {`r`n            crate::common::globalpac_apply_incoming();`r`n        }"
+Replace-Once -Path (Join-Path $root "src\core_main.rs") -Old "_is_quick_support |= !crate::platform::is_installed()" -New "let globalpac_incoming = _is_quick_support;`r`n        _is_quick_support |= !crate::platform::is_installed()"
+Replace-Once -Path (Join-Path $root "src\core_main.rs") -Old "crate::portable_service::client::set_quick_support(_is_quick_support);" -New "crate::portable_service::client::set_quick_support(_is_quick_support);`r`n        if globalpac_incoming {`r`n            crate::common::globalpac_apply_incoming();`r`n        }"
 
 Write-Host "Marca Globalpac aplicada em $root"
