@@ -229,7 +229,7 @@ jobs:
           popd
           mkdir -p ./SignOutput
           mv ./target/release/rustdesk-portable-packer.exe ./SignOutput/Globalpac-${{ env.VERSION }}-x86_64.exe
-          printf 'incoming\n' > ./rustdesk/globalpac-incoming.txt
+          printf 'incoming\n' > ./globalpac-incoming.txt
           pushd ./libs/portable
           python3 ./generate.py -f ../../rustdesk/ -o . -e ../../rustdesk/rustdesk.exe
           popd

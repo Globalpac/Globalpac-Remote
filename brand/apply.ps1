@@ -52,6 +52,11 @@ Copy-Item (Join-Path $brand "icon.png") (Join-Path $root "flutter\assets\icon.pn
 Copy-Item (Join-Path $brand "logo.png") (Join-Path $root "flutter\assets\logo.png") -Force
 Copy-Item (Join-Path $brand "logo.png") (Join-Path $root "flutter\assets\logo_light.png") -Force
 
+$qsOld = 'exe.contains("-qs-") || exe.contains("-qs.exe") || exe.contains("_qs.exe")'
+$qsNew = 'exe.contains("-qs-") || exe.contains("-qs.exe") || exe.contains("_qs.exe") || exe.contains("suporte")'
+Replace-Once -Path (Join-Path $root "src\core_main.rs") -Old $qsOld -New $qsNew
+Replace-Once -Path (Join-Path $root "libs\portable\src\main.rs") -Old $qsOld -New $qsNew
+
 $common = Join-Path $root "src\common.rs"
 Replace-Once -Path $common -Old "pub fn load_custom_client() {" -New "pub fn load_custom_client() {`r`nglobalpac_incoming_marker();"
 $marker = @'
