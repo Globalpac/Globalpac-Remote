@@ -51,6 +51,7 @@ Copy-Item (Join-Path $brand "icon.png") (Join-Path $root "res\icon.png") -Force
 Copy-Item (Join-Path $brand "icon.png") (Join-Path $root "flutter\assets\icon.png") -Force
 Copy-Item (Join-Path $brand "logo.png") (Join-Path $root "flutter\assets\logo.png") -Force
 Copy-Item (Join-Path $brand "logo.png") (Join-Path $root "flutter\assets\logo_light.png") -Force
+Copy-Item (Join-Path $brand "logo_dark.png") (Join-Path $root "flutter\assets\logo_dark.png") -Force
 
 $qsOld = 'exe.contains("-qs-") || exe.contains("-qs.exe") || exe.contains("_qs.exe")'
 $qsNew = 'exe.contains("-qs-") || exe.contains("-qs.exe") || exe.contains("_qs.exe") || exe.contains("suporte")'
@@ -58,18 +59,8 @@ Replace-Once -Path (Join-Path $root "src\core_main.rs") -Old $qsOld -New $qsNew
 Replace-Once -Path (Join-Path $root "libs\portable\src\main.rs") -Old $qsOld -New $qsNew
 
 $common = Join-Path $root "src\common.rs"
-Replace-Once -Path $common -Old "pub fn load_custom_client() {" -New "pub fn load_custom_client() {`r`nglobalpac_incoming_marker();"
 $marker = @'
-fn globalpac_incoming_marker() {
-    let Ok(exe) = std::env::current_exe() else {
-        return;
-    };
-    let Some(dir) = exe.parent() else {
-        return;
-    };
-    if !dir.join("globalpac-incoming.txt").is_file() {
-        return;
-    }
+pub fn globalpac_apply_incoming() {
     {
         let mut hard = config::HARD_SETTINGS.write().unwrap();
         hard.insert("conn-type".to_owned(), "incoming".to_owned());
@@ -90,5 +81,6 @@ fn globalpac_incoming_marker() {
 '@
 $marker = $marker.Replace("`r`n", "`n")
 Replace-Once -Path $common -Old "fn read_custom_client_advanced_settings(" -New ($marker + "fn read_custom_client_advanced_settings(")
+Replace-Once -Path (Join-Path $root "src\core_main.rs") -Old "crate::portable_service::client::set_quick_support(_is_quick_support);" -New "crate::portable_service::client::set_quick_support(_is_quick_support);`r`n        if _is_quick_support {`r`n            crate::common::globalpac_apply_incoming();`r`n        }"
 
 Write-Host "Marca Globalpac aplicada em $root"

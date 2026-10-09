@@ -229,11 +229,7 @@ jobs:
           popd
           mkdir -p ./SignOutput
           mv ./target/release/rustdesk-portable-packer.exe ./SignOutput/Globalpac-${{ env.VERSION }}-x86_64.exe
-          printf 'incoming\n' > ./globalpac-incoming.txt
-          pushd ./libs/portable
-          python3 ./generate.py -f ../../rustdesk/ -o . -e ../../rustdesk/rustdesk.exe
-          popd
-          mv ./target/release/rustdesk-portable-packer.exe ./SignOutput/Globalpac-Suporte-${{ env.VERSION }}-x86_64.exe
+          cp ./SignOutput/Globalpac-${{ env.VERSION }}-x86_64.exe ./SignOutput/Globalpac-Suporte-${{ env.VERSION }}-x86_64.exe
 
       - name: Upload exe
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
