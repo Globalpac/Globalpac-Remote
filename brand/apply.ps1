@@ -52,4 +52,38 @@ Copy-Item (Join-Path $brand "icon.png") (Join-Path $root "flutter\assets\icon.pn
 Copy-Item (Join-Path $brand "logo.png") (Join-Path $root "flutter\assets\logo.png") -Force
 Copy-Item (Join-Path $brand "logo.png") (Join-Path $root "flutter\assets\logo_light.png") -Force
 
+$common = Join-Path $root "src\common.rs"
+Replace-Once -Path $common -Old "pub fn load_custom_client() {" -New "pub fn load_custom_client() {`r`nglobalpac_incoming_marker();"
+$marker = @'
+fn globalpac_incoming_marker() {
+    let Ok(exe) = std::env::current_exe() else {
+        return;
+    };
+    let Some(dir) = exe.parent() else {
+        return;
+    };
+    if !dir.join("globalpac-incoming.txt").is_file() {
+        return;
+    }
+    {
+        let mut hard = config::HARD_SETTINGS.write().unwrap();
+        hard.insert("conn-type".to_owned(), "incoming".to_owned());
+        hard.insert("disable-settings".to_owned(), "Y".to_owned());
+        hard.insert("disable-ab".to_owned(), "Y".to_owned());
+        hard.insert("disable-installation".to_owned(), "Y".to_owned());
+    }
+    config::BUILTIN_SETTINGS
+        .write()
+        .unwrap()
+        .insert("hide-help-cards".to_owned(), "Y".to_owned());
+    config::Config::set_option(
+        "verification-method".to_owned(),
+        "use-temporary-password".to_owned(),
+    );
+}
+
+'@
+$marker = $marker.Replace("`r`n", "`n")
+Replace-Once -Path $common -Old "fn read_custom_client_advanced_settings(" -New ($marker + "fn read_custom_client_advanced_settings(")
+
 Write-Host "Marca Globalpac aplicada em $root"

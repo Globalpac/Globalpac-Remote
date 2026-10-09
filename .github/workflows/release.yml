@@ -40,11 +40,16 @@ jobs:
           make_latest: true
           overwrite_files: true
           fail_on_unmatched_files: true
-          files: dist/Globalpac-${{ env.VERSION }}-x86_64.exe
+          files: |
+            dist/Globalpac-${{ env.VERSION }}-x86_64.exe
+            dist/Globalpac-Suporte-${{ env.VERSION }}-x86_64.exe
           body: |
             Cliente Windows da Globalpac, baseado no RustDesk ${{ env.VERSION }} (AGPL-3.0).
 
             Servidor gravado: rustdesk.globalpac.com.br
+
+            - `Globalpac-Suporte` é para o cliente externo. Mostra o ID e a senha de uso único. Não liga a outros computadores.
+            - `Globalpac` é o cliente completo, para a equipe.
 
             O programa mantém a frase Powered by RustDesk. Não está assinado, por isso o SmartScreen avisa na primeira abertura.
 
