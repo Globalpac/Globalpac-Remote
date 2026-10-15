@@ -189,6 +189,22 @@ if ([string]::IsNullOrWhiteSpace($env:VERSION)) {
     throw "A variavel VERSION nao esta definida"
 }
 Replace-Once -Path (Join-Path $root "Cargo.toml") -Old 'version = "1.5.0"' -New "version = `"$($env:VERSION)`""
+$lockPath = Join-Path $root "Cargo.lock"
+$lockText = [System.IO.File]::ReadAllText($lockPath)
+$lockPattern = '(?m)^name = "rustdesk"\r?\nversion = "1.5.0"'
+$lockCount = ([regex]::Matches($lockText, $lockPattern)).Count
+if ($lockCount -ne 1) {
+    throw "Esperava 1 pacote rustdesk 1.5.0 no Cargo.lock, achei ${lockCount}"
+}
+$lockNewline = if ($lockText.Contains("`r`n")) { "`r`n" } else { "`n" }
+$lockUpdated = [regex]::Replace(
+    $lockText,
+    $lockPattern,
+    ("name = `"rustdesk`"{0}version = `"{1}`"" -f $lockNewline, $env:VERSION),
+    1
+)
+$utf8 = New-Object System.Text.UTF8Encoding $false
+[System.IO.File]::WriteAllText($lockPath, $lockUpdated, $utf8)
 
 $updater = Join-Path $root "src\updater.rs"
 Replace-Once -Path $updater -Old 'if do_check_software_update().is_err()' -New 'if crate::common::globalpac_check_update().is_err()'
