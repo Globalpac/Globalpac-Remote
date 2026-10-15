@@ -1,0 +1,52 @@
+name: Aviso RustDesk oficial
+
+on:
+  schedule:
+    - cron: "0 12 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  avisar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Comparar com o RustDesk oficial
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          ref=$(sed -n 's/.*RUSTDESK_REF: *"\([^"]*\)".*/\1/p' .github/workflows/windows.yml | head -1)
+          if [ -z "$ref" ]; then
+            echo "RUSTDESK_REF nao encontrado"
+            exit 1
+          fi
+          latest=$(gh api repos/rustdesk/rustdesk/releases/latest --jq .tag_name)
+          strip() { printf '%s' "$1" | sed 's/^v//'; }
+          ref_n=$(strip "$ref")
+          latest_n=$(strip "$latest")
+          top=$(printf '%s\n%s\n' "$ref_n" "$latest_n" | sort -V | tail -1)
+          if [ "$top" = "$ref_n" ]; then
+            echo "Base ${ref_n} ja cobre a release oficial ${latest_n}"
+            exit 0
+          fi
+          open=$(gh issue list --state open --search "RustDesk oficial in:title" --json number --jq 'length')
+          if [ "$open" != "0" ]; then
+            echo "Ja existe issue aberta sobre o RustDesk oficial"
+            exit 0
+          fi
+          body="$RUNNER_TEMP/rustdesk-oficial.md"
+          printf '%s\n' \
+            "A release oficial do RustDesk é ${latest}." \
+            "A base compilada em .github/workflows/windows.yml está em RUSTDESK_REF ${ref}." \
+            "" \
+            "Vale recompilar o cliente Globalpac em cima dessa versão. Este aviso não altera RUSTDESK_REF e não dispara compilação, porque o patch da marca pode precisar de ajuste." \
+            > "$body"
+          gh issue create \
+            --title "RustDesk oficial ${latest} está à frente da base ${ref}" \
+            --body-file "$body"

@@ -16,7 +16,7 @@ permissions:
   contents: write
 
 env:
-  VERSION: "1.5.0"
+  VERSION: "1.5.1"
 
 jobs:
   release:
@@ -51,6 +51,6 @@ jobs:
             - `Globalpac-Suporte` é para o cliente externo. Mostra o ID e a senha de uso único. Não liga a outros computadores. Instala em `C:\Program Files\RustDesk-Globalpac-Suporte`.
             - `Globalpac` é o cliente completo, para a equipe. Instala em `C:\Program Files\RustDesk-Globalpac`.
 
-            O programa mantém a frase Powered by RustDesk. Não está assinado, por isso o SmartScreen avisa na primeira abertura.
+            O programa instalado busca a próxima release neste repositório e se substitui. Mantém a frase Powered by RustDesk. Não está assinado, por isso o SmartScreen avisa na primeira abertura.
 
             Código: https://github.com/Globalpac/Globalpac-Remote e https://github.com/rustdesk/rustdesk/tree/1.5.0

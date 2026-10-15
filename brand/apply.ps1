@@ -68,7 +68,54 @@ pub fn globalpac_support_marker_exists() -> bool {
         .unwrap_or(false)
 }
 
+pub fn globalpac_update_prefix() -> &'static str {
+    let suporte = std::env::var("GLOBALPAC_SUPPORT").ok().as_deref() == Some("1")
+        || globalpac_support_marker_exists()
+        || std::env::current_exe()
+            .ok()
+            .and_then(|path| path.to_str().map(|value| value.to_lowercase().contains("suporte")))
+            .unwrap_or(false);
+    if suporte {
+        "Globalpac-Suporte"
+    } else {
+        "Globalpac"
+    }
+}
+
+pub fn globalpac_check_update() -> ResultType<()> {
+    let url = "https://api.github.com/repos/Globalpac/Globalpac-Remote/releases/latest";
+    let client = crate::hbbs_http::create_http_client_with_url_strict(url)?;
+    let response = client
+        .get(url)
+        .header("User-Agent", "Globalpac-Remote")
+        .header("Accept", "application/vnd.github+json")
+        .send()?;
+    if !response.status().is_success() {
+        bail!(
+            "Falha ao consultar a release Globalpac: {}",
+            response.status()
+        );
+    }
+    let body: Value = response.json()?;
+    let tag = body
+        .get("tag_name")
+        .and_then(|value| value.as_str())
+        .unwrap_or_default()
+        .trim_start_matches('v');
+    if tag.is_empty() {
+        bail!("Release Globalpac sem tag");
+    }
+    if get_version_number(tag) > get_version_number(crate::VERSION) {
+        *SOFTWARE_UPDATE_URL.lock().unwrap() =
+            format!("https://github.com/Globalpac/Globalpac-Remote/releases/tag/v{tag}");
+    } else {
+        *SOFTWARE_UPDATE_URL.lock().unwrap() = "".to_string();
+    }
+    Ok(())
+}
+
 pub fn globalpac_apply_server() {
+    config::Config::set_option("allow-auto-update".to_owned(), "Y".to_owned());
     config::Config::set_option(
         "custom-rendezvous-server".to_owned(),
         "rustdesk.globalpac.com.br".to_owned(),
@@ -137,5 +184,20 @@ copy /Y \"{ORIGIN_PROCESS_EXE}\" \"{path}\\{broker_exe}\"
 '@
 Replace-Once -Path $windows -Old 'copy /Y \"{ORIGIN_PROCESS_EXE}\" \"{path}\\{broker_exe}\"' -New ($copyLine.Replace("`r`n", "`n").TrimEnd())
 Replace-Once -Path $windows -Old 'broker_exe = win_topmost_window::INJECTED_PROCESS_EXE,' -New "broker_exe = win_topmost_window::INJECTED_PROCESS_EXE,`n        rename_exe = rename_exe,`n        support_marker = support_marker,"
+
+if ([string]::IsNullOrWhiteSpace($env:VERSION)) {
+    throw "A variavel VERSION nao esta definida"
+}
+Replace-Once -Path (Join-Path $root "Cargo.toml") -Old 'version = "1.5.0"' -New "version = `"$($env:VERSION)`""
+
+$updater = Join-Path $root "src\updater.rs"
+Replace-Once -Path $updater -Old 'if do_check_software_update().is_err()' -New 'if crate::common::globalpac_check_update().is_err()'
+Replace-Once -Path $updater -Old 'let version = download_url.split(''/'').last().unwrap_or_default();' -New @'
+let version = download_url.split('/').last().unwrap_or_default().trim_start_matches('v');
+        let version = format!("{}-{}", crate::common::globalpac_update_prefix(), version);
+'@.Replace("`r`n", "`n").TrimEnd()
+Replace-Once -Path $updater -Old '"{}/rustdesk-{}-{}.{}"' -New '"{}/{}-{}.{}"'
+Replace-Once -Path $updater -Old 'if owner != "rustdesk"' -New 'if !((owner == "rustdesk" && repo == "rustdesk") || (owner == "Globalpac" && repo == "Globalpac-Remote"))'
+Replace-Once -Path $updater -Old '|| repo != "rustdesk"' -New '|| false'
 
 Write-Host "Marca Globalpac aplicada em $root"

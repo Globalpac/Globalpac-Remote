@@ -15,9 +15,11 @@ O pacote interno continua a chamar-se `rustdesk.exe`. Na instalação ele é ren
 
 ## Compilar
 
-O fluxo [Cliente Windows Globalpac](https://github.com/Globalpac/Globalpac-Remote/actions/workflows/windows.yml) corre em cada push na `main` e também pode ser disparado à mão. Quando os `.exe` ficam prontos, o fluxo [Publicar release](https://github.com/Globalpac/Globalpac-Remote/actions/workflows/release.yml) atualiza a release [v1.5.0](https://github.com/Globalpac/Globalpac-Remote/releases/tag/v1.5.0).
+O fluxo [Cliente Windows Globalpac](https://github.com/Globalpac/Globalpac-Remote/actions/workflows/windows.yml) corre em cada push na `main` e também pode ser disparado à mão. Quando os `.exe` ficam prontos, o fluxo [Publicar release](https://github.com/Globalpac/Globalpac-Remote/actions/workflows/release.yml) publica a versão gravada em `VERSION`. A 1.5.1 é a primeira em que o programa instalado busca a release deste repositório e se substitui. A 1.5.0 continua publicada e não recebe esse aviso.
 
-- `Globalpac-Suporte-1.5.0-x86_64.exe` é o do cliente externo. Abre o ID e a senha de uso único, no estilo QuickSupport. Não deixa ligar a outros computadores.
-- `Globalpac-1.5.0-x86_64.exe` é o cliente completo, para a equipe.
+- `Globalpac-Suporte-{versão}-x86_64.exe` é o do cliente externo. Abre o ID e a senha de uso único, no estilo QuickSupport. Não deixa ligar a outros computadores.
+- `Globalpac-{versão}-x86_64.exe` é o cliente completo, para a equipe.
+
+O fluxo [Aviso RustDesk oficial](https://github.com/Globalpac/Globalpac-Remote/actions/workflows/upstream.yml) compara a release de `rustdesk/rustdesk` com `RUSTDESK_REF`. Se a oficial for maior, abre uma issue. Não altera a base nem compila.
 
 A compilação usa o runner do GitHub. Este PC não precisa de Rust, Flutter nem Visual Studio.
