@@ -6,4 +6,4 @@ O código correspondente é:
 - o submódulo `hbb_common` preso nessa tag
 - as alterações deste repositório, em especial `brand/apply.ps1` e os ficheiros em `brand/`
 
-A frase Powered by RustDesk permanece no cliente. O copyright do RustDesk continua em Purslane Tech Pte. Ltd.
+O rodapé do cliente diz Desenvolvido por Globalpac e abre https://globalpac.com.br. O copyright do RustDesk continua em Purslane Tech Pte. Ltd.

@@ -200,4 +200,8 @@ Replace-Once -Path $updater -Old '"{}/rustdesk-{}-{}.{}"' -New '"{}/{}-{}.{}"'
 Replace-Once -Path $updater -Old 'if owner != "rustdesk"' -New 'if !((owner == "rustdesk" && repo == "rustdesk") || (owner == "Globalpac" && repo == "Globalpac-Remote"))'
 Replace-Once -Path $updater -Old '|| repo != "rustdesk"' -New '|| false'
 
+$flutterCommon = Join-Path $root "flutter\lib\common.dart"
+Replace-Once -Path $flutterCommon -Old "launchUrl(Uri.parse('https://rustdesk.com'));" -New "launchUrl(Uri.parse('https://globalpac.com.br'));"
+Replace-Once -Path $flutterCommon -Old 'translate("powered_by_me"),' -New '"Desenvolvido por Globalpac",'
+
 Write-Host "Marca Globalpac aplicada em $root"
