@@ -48,8 +48,8 @@ jobs:
 
             Servidor gravado: rustdesk.globalpac.com.br
 
-            - `Globalpac-Suporte` é para o cliente externo. Mostra o ID e a senha de uso único. Não liga a outros computadores.
-            - `Globalpac` é o cliente completo, para a equipe.
+            - `Globalpac-Suporte` é para o cliente externo. Mostra o ID e a senha de uso único. Não liga a outros computadores. Instala em `C:\Program Files\RustDesk-Globalpac-Suporte`.
+            - `Globalpac` é o cliente completo, para a equipe. Instala em `C:\Program Files\RustDesk-Globalpac`.
 
             O programa mantém a frase Powered by RustDesk. Não está assinado, por isso o SmartScreen avisa na primeira abertura.
 

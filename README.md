@@ -6,12 +6,12 @@ Este repositório não copia o código do RustDesk. O GitHub Actions baixa a tag
 
 O que a marca muda:
 
-- nome na janela e no instalador: Globalpac
+- nome na janela e no instalador: RustDesk-Globalpac (o instalador do Windows não aceita espaço no nome)
 - ícone e logo do site
 - servidor gravado: `rustdesk.globalpac.com.br`
 - chave pública do nosso hbbs
 
-O ficheiro interno continua a chamar-se `rustdesk.exe`. Não há certificado de assinatura, por isso o Windows SmartScreen avisa na primeira execução.
+O pacote interno continua a chamar-se `rustdesk.exe`. Na instalação ele é renomeado para `RustDesk-Globalpac.exe`, que é o arquivo do atalho. O Suporte instala em `C:\Program Files\RustDesk-Globalpac-Suporte` e permanece só com ID e senha. Não há certificado de assinatura, por isso o Windows SmartScreen avisa na primeira execução.
 
 ## Compilar
 
