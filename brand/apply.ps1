@@ -115,6 +115,12 @@ pub fn globalpac_check_update() -> ResultType<()> {
 }
 
 pub fn globalpac_apply_server() {
+    {
+        let mut hard = config::HARD_SETTINGS.write().unwrap();
+        hard.insert("disable-account".to_owned(), "Y".to_owned());
+        hard.insert("disable-ab".to_owned(), "Y".to_owned());
+    }
+    config::LocalConfig::set_option("disable-group-panel".to_owned(), "Y".to_owned());
     config::Config::set_option("allow-auto-update".to_owned(), "Y".to_owned());
     config::Config::set_option(
         "custom-rendezvous-server".to_owned(),
@@ -218,6 +224,8 @@ Replace-Once -Path $updater -Old '|| repo != "rustdesk"' -New '|| false'
 
 $flutterCommon = Join-Path $root "flutter\lib\common.dart"
 Replace-Once -Path $flutterCommon -Old "launchUrl(Uri.parse('https://rustdesk.com'));" -New "launchUrl(Uri.parse('https://globalpac.com.br'));"
+$loginDialog = Join-Path $root "flutter\lib\common\widgets\login.dart"
+Replace-Once -Path $loginDialog -Old "Future<bool?> loginDialog() {" -New "Future<bool?> loginDialog() { return null; }`n`nFuture<bool?> loginDialogUnusedGlobalpac() {"
 Replace-Once -Path $flutterCommon -Old 'translate("powered_by_me"),' -New '"Desenvolvido por Globalpac",'
 
 Write-Host "Marca Globalpac aplicada em $root"
