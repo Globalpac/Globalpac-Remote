@@ -225,7 +225,7 @@ Replace-Once -Path $updater -Old '|| repo != "rustdesk"' -New '|| false'
 $flutterCommon = Join-Path $root "flutter\lib\common.dart"
 Replace-Once -Path $flutterCommon -Old "launchUrl(Uri.parse('https://rustdesk.com'));" -New "launchUrl(Uri.parse('https://globalpac.com.br'));"
 $loginDialog = Join-Path $root "flutter\lib\common\widgets\login.dart"
-Replace-Once -Path $loginDialog -Old "Future<bool?> loginDialog() {" -New "Future<bool?> loginDialog() { return null; }`n`nFuture<bool?> loginDialogUnusedGlobalpac() {"
+Replace-Once -Path $loginDialog -Old "Future<bool?> loginDialog() {" -New "Future<bool?> loginDialog() { return Future.value(null); }`n`nFuture<bool?> loginDialogUnusedGlobalpac() {"
 Replace-Once -Path $flutterCommon -Old 'translate("powered_by_me"),' -New '"Desenvolvido por Globalpac",'
 
 Write-Host "Marca Globalpac aplicada em $root"
