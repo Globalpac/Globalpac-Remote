@@ -13,7 +13,7 @@ env:
   FLUTTER_VERSION: "3.24.5"
   VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
   VCPKG_COMMIT_ID: "9e593bb18ea69cc5095e012465dcd675a822ed0d"
-  VERSION: "1.5.4"
+  VERSION: "1.5.5"
   CARGO_EXPAND_VERSION: "1.0.95"
   FLUTTER_RUST_BRIDGE_VERSION: "1.80.1"
 
@@ -230,7 +230,18 @@ jobs:
           popd
           mkdir -p ./SignOutput
           mv ./target/release/rustdesk-portable-packer.exe ./SignOutput/Globalpac-${{ env.VERSION }}-x86_64.exe
-          cp ./SignOutput/Globalpac-${{ env.VERSION }}-x86_64.exe ./SignOutput/Globalpac-Suporte-${{ env.VERSION }}-x86_64.exe
+
+          # Suporte: pacote proprio, com marcador e exe com outro nome.
+          # Assim ele se extrai em %LOCALAPPDATA%\rustdesk-globalpac-suporte e usa o nome RustDesk-Globalpac-Suporte.
+          cp -r ./rustdesk ./rustdesk-suporte
+          mv ./rustdesk-suporte/rustdesk.exe ./rustdesk-suporte/RustDesk-Globalpac-Suporte.exe
+          echo globalpac > ./rustdesk-suporte/globalpac-suporte.txt
+          pushd ./libs/portable
+          python3 ./generate.py -f ../../rustdesk-suporte/ -o . -e ../../rustdesk-suporte/RustDesk-Globalpac-Suporte.exe
+          popd
+          mv ./target/release/rustdesk-portable-packer.exe ./SignOutput/Globalpac-Suporte-${{ env.VERSION }}-x86_64.exe
+          # Portatil: o mesmo pacote; o nome do arquivo faz ele so rodar, sem instalar.
+          cp ./SignOutput/Globalpac-Suporte-${{ env.VERSION }}-x86_64.exe ./SignOutput/Globalpac-Suporte-Portatil-${{ env.VERSION }}-x86_64.exe
 
       - name: Upload exe
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -239,4 +250,5 @@ jobs:
           path: |
             rustdesk/SignOutput/Globalpac-${{ env.VERSION }}-x86_64.exe
             rustdesk/SignOutput/Globalpac-Suporte-${{ env.VERSION }}-x86_64.exe
+            rustdesk/SignOutput/Globalpac-Suporte-Portatil-${{ env.VERSION }}-x86_64.exe
           if-no-files-found: error
