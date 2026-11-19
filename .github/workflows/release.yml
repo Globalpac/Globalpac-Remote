@@ -44,7 +44,7 @@ jobs:
             dist/Globalpac-${{ env.VERSION }}-x86_64.exe
             dist/Globalpac-Suporte-${{ env.VERSION }}-x86_64.exe
           body: |
-            Cliente Windows da Globalpac ${{ env.VERSION }}, baseado no RustDesk 1.5.0 (AGPL-3.0).
+            Cliente Windows da Globalpac ${{ env.VERSION }}, baseado no RustDesk 1.5.1 (AGPL-3.0).
 
             Servidor gravado: rustdesk.globalpac.com.br
 
@@ -53,4 +53,4 @@ jobs:
 
             O programa instalado busca a próxima release neste repositório e se substitui. O rodapé diz Desenvolvido por Globalpac. Não está assinado, por isso o SmartScreen avisa na primeira abertura.
 
-            Código: https://github.com/Globalpac/Globalpac-Remote e https://github.com/rustdesk/rustdesk/tree/1.5.0
+            Código: https://github.com/Globalpac/Globalpac-Remote e https://github.com/rustdesk/rustdesk/tree/1.5.1

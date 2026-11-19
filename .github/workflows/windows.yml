@@ -6,7 +6,7 @@ on:
     branches: [main]
 
 env:
-  RUSTDESK_REF: "1.5.0"
+  RUSTDESK_REF: "1.5.1"
   SCITER_RUST_VERSION: "1.75"
   RUST_VERSION: "1.75"
   LLVM_VERSION: "15.0.6"
