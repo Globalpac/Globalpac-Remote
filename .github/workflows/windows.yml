@@ -242,6 +242,10 @@ jobs:
           mv ./target/release/rustdesk-portable-packer.exe ./SignOutput/Globalpac-Suporte-${{ env.VERSION }}-x86_64.exe
           # Portatil: o mesmo pacote; o nome do arquivo faz ele so rodar, sem instalar.
           cp ./SignOutput/Globalpac-Suporte-${{ env.VERSION }}-x86_64.exe ./SignOutput/Globalpac-Suporte-Portatil-${{ env.VERSION }}-x86_64.exe
+          # Nomes fixos para o site usar /releases/latest/download/...
+          # A atualizacao automatica continua usando o arquivo versionado.
+          cp ./SignOutput/Globalpac-Suporte-${{ env.VERSION }}-x86_64.exe ./SignOutput/Globalpac-Suporte-Setup.exe
+          cp ./SignOutput/Globalpac-Suporte-Portatil-${{ env.VERSION }}-x86_64.exe ./SignOutput/Globalpac-Suporte-Portatil.exe
 
       - name: Upload exe
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -251,4 +255,6 @@ jobs:
             rustdesk/SignOutput/Globalpac-${{ env.VERSION }}-x86_64.exe
             rustdesk/SignOutput/Globalpac-Suporte-${{ env.VERSION }}-x86_64.exe
             rustdesk/SignOutput/Globalpac-Suporte-Portatil-${{ env.VERSION }}-x86_64.exe
+            rustdesk/SignOutput/Globalpac-Suporte-Setup.exe
+            rustdesk/SignOutput/Globalpac-Suporte-Portatil.exe
           if-no-files-found: error

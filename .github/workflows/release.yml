@@ -44,6 +44,8 @@ jobs:
             dist/Globalpac-${{ env.VERSION }}-x86_64.exe
             dist/Globalpac-Suporte-${{ env.VERSION }}-x86_64.exe
             dist/Globalpac-Suporte-Portatil-${{ env.VERSION }}-x86_64.exe
+            dist/Globalpac-Suporte-Setup.exe
+            dist/Globalpac-Suporte-Portatil.exe
           body: |
             Cliente Windows da Globalpac ${{ env.VERSION }}, baseado no RustDesk 1.5.0 (AGPL-3.0).
 
@@ -53,6 +55,10 @@ jobs:
             - `Globalpac-Suporte-Portatil` é o mesmo Suporte sem instalação: só abre, mostra o ID e a senha e fecha.
             - `Globalpac` é o cliente completo, para a equipe. Instala em `C:\Program Files\RustDesk-Globalpac`.
 
-            O programa instalado busca a próxima release neste repositório e se substitui. O rodapé diz Desenvolvido por Globalpac. Não está assinado, por isso o SmartScreen avisa na primeira abertura.
+            O programa instalado busca a próxima release neste repositório e se substitui, pelo arquivo com versão no nome. O rodapé diz Desenvolvido por Globalpac. Não está assinado, por isso o SmartScreen avisa na primeira abertura.
+
+            Links estáveis, que apontam para a última release:
+            - Instalável: https://github.com/Globalpac/Globalpac-Remote/releases/latest/download/Globalpac-Suporte-Setup.exe
+            - Portátil: https://github.com/Globalpac/Globalpac-Remote/releases/latest/download/Globalpac-Suporte-Portatil.exe
 
             Código: https://github.com/Globalpac/Globalpac-Remote e https://github.com/rustdesk/rustdesk/tree/1.5.0
