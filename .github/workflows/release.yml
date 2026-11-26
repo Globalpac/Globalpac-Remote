@@ -16,7 +16,7 @@ permissions:
   contents: write
 
 env:
-  VERSION: "1.5.5"
+  VERSION: "1.5.6"
 
 jobs:
   release:
@@ -46,6 +46,8 @@ jobs:
             dist/Globalpac-Suporte-Portatil-${{ env.VERSION }}-x86_64.exe
             dist/Globalpac-Suporte-Setup.exe
             dist/Globalpac-Suporte-Portatil.exe
+            dist/Globalpac-Acesso-${{ env.VERSION }}-x86_64.exe
+            dist/Globalpac-Acesso-Setup.exe
           body: |
             Cliente Windows da Globalpac ${{ env.VERSION }}, baseado no RustDesk 1.5.0 (AGPL-3.0).
 
@@ -53,6 +55,7 @@ jobs:
 
             - `Globalpac-Suporte` é para o cliente externo. Mostra o ID e a senha de uso único. Não liga a outros computadores. Instala em `C:\Program Files\RustDesk-Globalpac-Suporte` e convive com o cliente completo no mesmo PC.
             - `Globalpac-Suporte-Portatil` é o mesmo Suporte sem instalação: só abre, mostra o ID e a senha e fecha.
+            - `Globalpac-Acesso` é o acesso não assistido, para o TI instalar no computador e entrar depois com a senha permanente definida na instalação. Instala em `C:\Program Files\RustDesk-Globalpac-Acesso` e convive com os outros clientes no mesmo PC.
             - `Globalpac` é o cliente completo, para a equipe. Instala em `C:\Program Files\RustDesk-Globalpac`.
 
             O programa instalado busca a próxima release neste repositório e se substitui, pelo arquivo com versão no nome. O rodapé diz Desenvolvido por Globalpac. Não está assinado, por isso o SmartScreen avisa na primeira abertura.
@@ -60,5 +63,6 @@ jobs:
             Links estáveis, que apontam para a última release:
             - Instalável: https://github.com/Globalpac/Globalpac-Remote/releases/latest/download/Globalpac-Suporte-Setup.exe
             - Portátil: https://github.com/Globalpac/Globalpac-Remote/releases/latest/download/Globalpac-Suporte-Portatil.exe
+            - Acesso: https://github.com/Globalpac/Globalpac-Remote/releases/latest/download/Globalpac-Acesso-Setup.exe
 
             Código: https://github.com/Globalpac/Globalpac-Remote e https://github.com/rustdesk/rustdesk/tree/1.5.0
