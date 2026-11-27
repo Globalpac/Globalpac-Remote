@@ -282,6 +282,81 @@ pub fn globalpac_apply_acesso() {
     );
 }
 
+pub fn globalpac_verified_update_artifact(
+    update_url: &str,
+    query: &crate::update_metadata::UpdateArtifactQuery<'_>,
+) -> ResultType<crate::update_metadata::VerifiedUpdateArtifact> {
+    let version = update_url
+        .split('/')
+        .last()
+        .unwrap_or_default()
+        .trim_start_matches('v');
+    if version.is_empty() {
+        bail!("Release Globalpac sem versão");
+    }
+    let filename = format!(
+        "{}-{}-{}.{}",
+        globalpac_update_prefix(),
+        version,
+        query.arch,
+        query.format
+    );
+    let url = format!(
+        "https://github.com/Globalpac/Globalpac-Remote/releases/download/v{version}/{filename}"
+    );
+    let api = format!(
+        "https://api.github.com/repos/Globalpac/Globalpac-Remote/releases/tags/v{version}"
+    );
+    let client = crate::hbbs_http::create_http_client_with_url_strict(&api)?;
+    let response = client
+        .get(&api)
+        .header("User-Agent", "Globalpac-Remote")
+        .header("Accept", "application/vnd.github+json")
+        .send()?;
+    if !response.status().is_success() {
+        bail!(
+            "Falha ao consultar a release Globalpac: {}",
+            response.status()
+        );
+    }
+    let body: Value = response.json()?;
+    let asset = body
+        .get("assets")
+        .and_then(|value| value.as_array())
+        .into_iter()
+        .flatten()
+        .find(|asset| {
+            asset
+                .get("name")
+                .and_then(|value| value.as_str())
+                == Some(filename.as_str())
+        });
+    let Some(asset) = asset else {
+        bail!("Asset Globalpac não encontrado: {filename}");
+    };
+    let size = asset.get("size").and_then(|value| value.as_u64()).unwrap_or(0);
+    if size == 0 {
+        bail!("Asset Globalpac sem tamanho: {filename}");
+    }
+    let digest = asset
+        .get("digest")
+        .and_then(|value| value.as_str())
+        .unwrap_or_default();
+    let sha256 = digest
+        .strip_prefix("sha256:")
+        .unwrap_or("")
+        .to_string();
+    if sha256.len() != 64 || !sha256.bytes().all(|byte| byte.is_ascii_hexdigit()) {
+        bail!("Asset Globalpac sem sha256 válido: {filename}");
+    }
+    Ok(crate::update_metadata::VerifiedUpdateArtifact {
+        version: version.to_string(),
+        url,
+        size,
+        sha256,
+    })
+}
+
 '@
 $marker = $marker.Replace("`r`n", "`n")
 Replace-Once -Path $common -Old "fn read_custom_client_advanced_settings(" -New ($marker + "fn read_custom_client_advanced_settings(")
@@ -317,13 +392,18 @@ Replace-Once -Path (Join-Path $root "src\core_main.rs") -Old 'let res = platform
 if ([string]::IsNullOrWhiteSpace($env:VERSION)) {
     throw "A variavel VERSION nao esta definida"
 }
-Replace-Once -Path (Join-Path $root "Cargo.toml") -Old 'version = "1.5.0"' -New "version = `"$($env:VERSION)`""
+# A versão da base vem do RUSTDESK_REF do workflow, para subir a base sem editar este script.
+$baseVersion = $env:RUSTDESK_REF
+if ([string]::IsNullOrWhiteSpace($baseVersion)) {
+    throw "A variavel RUSTDESK_REF nao esta definida"
+}
+Replace-Once -Path (Join-Path $root "Cargo.toml") -Old "version = `"$baseVersion`"" -New "version = `"$($env:VERSION)`""
 $lockPath = Join-Path $root "Cargo.lock"
 $lockText = [System.IO.File]::ReadAllText($lockPath)
-$lockPattern = '(?m)^name = "rustdesk"\r?\nversion = "1.5.0"'
+$lockPattern = '(?m)^name = "rustdesk"\r?\nversion = "' + [regex]::Escape($baseVersion) + '"'
 $lockCount = ([regex]::Matches($lockText, $lockPattern)).Count
 if ($lockCount -ne 1) {
-    throw "Esperava 1 pacote rustdesk 1.5.0 no Cargo.lock, achei ${lockCount}"
+    throw "Esperava 1 pacote rustdesk $baseVersion no Cargo.lock, achei ${lockCount}"
 }
 $lockNewline = if ($lockText.Contains("`r`n")) { "`r`n" } else { "`n" }
 $lockUpdated = [regex]::Replace(
@@ -336,14 +416,18 @@ $utf8 = New-Object System.Text.UTF8Encoding $false
 [System.IO.File]::WriteAllText($lockPath, $lockUpdated, $utf8)
 
 $updater = Join-Path $root "src\updater.rs"
-Replace-Once -Path $updater -Old 'if do_check_software_update().is_err()' -New 'if crate::common::globalpac_check_update().is_err()'
-Replace-Once -Path $updater -Old 'let version = download_url.split(''/'').last().unwrap_or_default();' -New @'
-let version = download_url.split('/').last().unwrap_or_default().trim_start_matches('v');
-        let version = format!("{}-{}", crate::common::globalpac_update_prefix(), version);
-'@.Replace("`r`n", "`n").TrimEnd()
-Replace-Once -Path $updater -Old '"{}/rustdesk-{}-{}.{}"' -New '"{}/{}-{}.{}"'
-Replace-Once -Path $updater -Old 'if owner != "rustdesk"' -New 'if !((owner == "rustdesk" && repo == "rustdesk") || (owner == "Globalpac" && repo == "Globalpac-Remote"))'
-Replace-Once -Path $updater -Old '|| repo != "rustdesk"' -New '|| false'
+Replace-Once -Path $updater -Old 'do_check_software_update()?;' -New 'crate::common::globalpac_check_update()?;'
+Replace-Once -Path $updater -Old @'
+let artifact = verified_update_artifact_from_release_page_url(&update_url, &query)?;
+        let download_url = artifact.url.as_str();
+'@ -New (@'
+let artifact = crate::common::globalpac_verified_update_artifact(&update_url, &query)?;
+        let download_url = artifact.url.as_str();
+'@.Replace("`r`n", "`n").TrimEnd())
+
+$artifactRs = Join-Path $root "src\updater\artifact.rs"
+Replace-Once -Path $artifactRs -Old 'if owner != "rustdesk"' -New 'if !((owner == "rustdesk" && repo == "rustdesk") || (owner == "Globalpac" && repo == "Globalpac-Remote"))'
+Replace-Once -Path $artifactRs -Old '|| repo != "rustdesk"' -New '|| false'
 
 $flutterCommon = Join-Path $root "flutter\lib\common.dart"
 Replace-Once -Path $flutterCommon -Old "launchUrl(Uri.parse('https://rustdesk.com'));" -New "launchUrl(Uri.parse('https://globalpac.com.br'));"

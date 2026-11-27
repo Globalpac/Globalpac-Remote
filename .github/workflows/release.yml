@@ -16,7 +16,7 @@ permissions:
   contents: write
 
 env:
-  VERSION: "1.5.6"
+  VERSION: "1.5.7"
 
 jobs:
   release:
@@ -49,7 +49,7 @@ jobs:
             dist/Globalpac-Acesso-${{ env.VERSION }}-x86_64.exe
             dist/Globalpac-Acesso-Setup.exe
           body: |
-            Cliente Windows da Globalpac ${{ env.VERSION }}, baseado no RustDesk 1.5.0 (AGPL-3.0).
+            Cliente Windows da Globalpac ${{ env.VERSION }}, baseado no RustDesk 1.5.3 (AGPL-3.0).
 
             Servidor gravado: rustdesk.globalpac.com.br
 
@@ -65,4 +65,4 @@ jobs:
             - Portátil: https://github.com/Globalpac/Globalpac-Remote/releases/latest/download/Globalpac-Suporte-Portatil.exe
             - Acesso: https://github.com/Globalpac/Globalpac-Remote/releases/latest/download/Globalpac-Acesso-Setup.exe
 
-            Código: https://github.com/Globalpac/Globalpac-Remote e https://github.com/rustdesk/rustdesk/tree/1.5.0
+            Código: https://github.com/Globalpac/Globalpac-Remote e https://github.com/rustdesk/rustdesk/tree/1.5.3
