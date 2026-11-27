@@ -1,5 +1,46 @@
 # Globalpac Remote
 
+O **Globalpac-Suporte** é o programa de acesso remoto da Globalpac para o atendimento técnico. Você abre o programa e envia o ID e a senha para o suporte.
+
+## Como baixar e usar
+
+> **Importante!**
+> Funciona em computadores com **Windows 10 ou superior**.
+> Em servidores, funciona no **Windows Server 2019 ou superior**.
+
+Há duas formas. Use uma delas:
+
+- **[Baixar o instalador](https://github.com/Globalpac/Globalpac-Remote/releases/latest/download/Globalpac-Suporte-Setup.exe)** (`Globalpac-Suporte-Setup.exe`): fica instalado no computador.
+- **[Baixar a versão portátil](https://github.com/Globalpac/Globalpac-Remote/releases/latest/download/Globalpac-Suporte-Portatil.exe)** (`Globalpac-Suporte-Portatil.exe`): roda sem instalar. É só abrir.
+
+Não use o arquivo que se chama só `Globalpac-...exe`: esse é o cliente da equipe.
+
+Se o Windows mostrar o aviso do SmartScreen ("O Windows protegeu o seu computador"), clique em **Mais informações** e depois em **Executar assim mesmo**. O aviso aparece porque o programa ainda não tem certificado de assinatura.
+
+### Instalação (só para o instalador)
+
+**1.** Execute o `Globalpac-Suporte-Setup.exe`.
+
+**2.** Clique em **Next** e aceite os termos.
+
+**3.** Mantenha o diretório padrão, **C:\Program Files\RustDesk-Globalpac-Suporte**, e clique em **Next**. Para mudar, clique em **Change…** e escolha outra pasta.
+
+**4.** Clique em **Install**. Ao terminar, o Globalpac-Suporte está pronto para usar.
+
+### Como passar o ID e a senha ao suporte
+
+**1.** Abra o **Globalpac-Suporte**.
+
+**2.** Na tela principal aparecem o **ID** e a **senha** de uso único.
+
+**3.** Envie os dois para o suporte da Globalpac. Não compartilhe com outras pessoas.
+
+**4.** Aguarde a conexão. Não feche o programa enquanto o atendimento estiver em andamento.
+
+O Globalpac-Suporte serve só para receber o atendimento. Ele não conecta a outros computadores.
+
+## Para a equipe
+
 Cliente Windows do [RustDesk](https://github.com/rustdesk/rustdesk) 1.5.0 com a marca Globalpac. O rodapé diz **Desenvolvido por Globalpac**. A licença do cliente é a [AGPL-3.0](https://github.com/rustdesk/rustdesk/blob/1.5.0/LICENCE).
 
 Este repositório não copia o código do RustDesk. O GitHub Actions baixa a tag `1.5.0`, aplica `brand/apply.ps1` e compila o `.exe`.
