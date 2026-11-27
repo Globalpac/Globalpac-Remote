@@ -1,38 +1,31 @@
 # Globalpac Remote
 
-O **Globalpac-Suporte** é o programa de acesso remoto da Globalpac para o atendimento técnico. Basta instalar, abrir o programa e enviar o ID e a senha para o suporte.
+O **Globalpac-Suporte** é o programa de acesso remoto da Globalpac para o atendimento técnico. Você abre o programa e envia o ID e a senha para o suporte.
 
 ## Como baixar e usar
 
 > **Importante!**
-> A instalação deve ser feita em um computador com **Windows 10 ou superior**.
-> Em servidores, é compatível com o **Windows Server 2019 ou superior**.
+> Funciona em computadores com **Windows 10 ou superior**.
+> Em servidores, funciona no **Windows Server 2019 ou superior**.
 
-### Instalação
+Há duas formas. Use uma delas:
 
-**1.** Baixe o instalador na [página da última versão](https://github.com/Globalpac/Globalpac-Remote/releases/latest). Use o arquivo que começa com **Globalpac-Suporte** e termina com **x86_64.exe**. O número no nome muda a cada versão. Não use o arquivo que se chama só `Globalpac-...exe` — esse é o cliente da equipe.
+- **[Baixar o instalador](https://github.com/Globalpac/Globalpac-Remote/releases/latest/download/Globalpac-Suporte-Setup.exe)** (`Globalpac-Suporte-Setup.exe`): fica instalado no computador.
+- **[Baixar a versão portátil](https://github.com/Globalpac/Globalpac-Remote/releases/latest/download/Globalpac-Suporte-Portatil.exe)** (`Globalpac-Suporte-Portatil.exe`): roda sem instalar. É só abrir.
 
-**2.** Execute o arquivo baixado.
+Não use o arquivo que se chama só `Globalpac-...exe`: esse é o cliente da equipe.
 
-**3.** Se o Windows mostrar o aviso do SmartScreen (“O Windows protegeu o seu computador”), clique em **Mais informações** e depois em **Executar assim mesmo**. Isso acontece porque o programa ainda não tem certificado de assinatura.
+Se o Windows mostrar o aviso do SmartScreen ("O Windows protegeu o seu computador"), clique em **Mais informações** e depois em **Executar assim mesmo**. O aviso aparece porque o programa ainda não tem certificado de assinatura.
 
-**4.** Clique em **Next**.
+### Instalação (só para o instalador)
 
-**5.** Aceite os termos e clique em **Next**.
+**1.** Execute o `Globalpac-Suporte-Setup.exe`.
 
-**6.** **Diretório de instalação:**
+**2.** Clique em **Next** e aceite os termos.
 
-Por padrão, o diretório é: **C:\Program Files\RustDesk-Globalpac-Suporte**.
+**3.** Mantenha o diretório padrão, **C:\Program Files\RustDesk-Globalpac-Suporte**, e clique em **Next**. Para mudar, clique em **Change…** e escolha outra pasta.
 
-Recomendamos que o local de instalação não seja alterado. Apenas clique em **Next**.
-
-Caso deseje alterar o local, clique em **Change…** e selecione uma nova pasta.
-
-Após definir o diretório, clique em **Next**.
-
-**7.** Clique em **Install** para iniciar a instalação.
-
-Sucesso! O Globalpac-Suporte está pronto para ser utilizado.
+**4.** Clique em **Install**. Ao terminar, o Globalpac-Suporte está pronto para usar.
 
 ### Como passar o ID e a senha ao suporte
 
@@ -42,7 +35,7 @@ Sucesso! O Globalpac-Suporte está pronto para ser utilizado.
 
 **3.** Envie os dois para o suporte da Globalpac. Não compartilhe com outras pessoas.
 
-**4.** Aguarde o atendimento se conectar. Não feche o programa enquanto o suporte estiver em andamento.
+**4.** Aguarde a conexão. Não feche o programa enquanto o atendimento estiver em andamento.
 
 O Globalpac-Suporte serve só para receber o atendimento. Ele não conecta a outros computadores.
 
@@ -59,13 +52,57 @@ O que a marca muda:
 - servidor gravado: `rustdesk.globalpac.com.br`
 - chave pública do nosso hbbs
 
-O pacote interno ainda se chama `rustdesk.exe`. Na instalação ele é renomeado para `RustDesk-Globalpac.exe`, que é o arquivo do atalho. O Suporte instala em `C:\Program Files\RustDesk-Globalpac-Suporte` e permanece só com ID e senha. Não há certificado de assinatura, por isso o Windows SmartScreen avisa na primeira execução.
+O pacote interno continua a chamar-se `rustdesk.exe`. Na instalação ele é renomeado para `RustDesk-Globalpac.exe`, que é o arquivo do atalho. O Suporte tem nome próprio, `RustDesk-Globalpac-Suporte`, com configuração, IPC e serviço separados, por isso convive com o cliente completo no mesmo PC. Ele instala em `C:\Program Files\RustDesk-Globalpac-Suporte` e permanece só com ID e senha. Não há certificado de assinatura, por isso o Windows SmartScreen avisa na primeira execução.
 
-### Compilar
 
-O fluxo [Cliente Windows Globalpac](https://github.com/Globalpac/Globalpac-Remote/actions/workflows/windows.yml) roda em cada push na `main` e também pode ser disparado à mão. Quando os `.exe` ficam prontos, o fluxo [Publicar release](https://github.com/Globalpac/Globalpac-Remote/actions/workflows/release.yml) publica a versão definida na variável `VERSION` dos workflows `windows.yml` e `release.yml`. A 1.5.1 é a primeira em que o programa instalado busca a release deste repositório e se substitui. A 1.5.2 troca o rodapé para Desenvolvido por Globalpac. A 1.5.3 troca o ícone e a logo pelo quadrado azul com as duas setas brancas. A 1.5.4 desliga conta, agenda e dispositivos. A última release publicada é a 1.5.4. A 1.5.0 continua publicada e não recebe esse aviso.
+## Globalpac Acesso (acesso não assistido)
 
-- `Globalpac-Suporte-{versão}-x86_64.exe` é o do cliente externo. Abre o ID e a senha de uso único, no estilo QuickSupport. Não deixa ligar a outros computadores.
+O **Globalpac-Acesso** é um quarto artefato, separado do Suporte e do cliente completo. Serve para o TI instalar no computador e, depois, entrar a qualquer momento com uma senha permanente, sem alguém precisar aceitar a conexão. Não substitui o Globalpac-Suporte: o Suporte continua só com senha de uso único, para atendimento pontual.
+
+### Termo de ciência do cliente
+
+O acesso não assistido só deve ser instalado com o consentimento informado de quem usa o computador. A pessoa precisa saber, antes da instalação, que:
+
+- o programa fica instalado como serviço do Windows e inicia com a máquina;
+- o TI da Globalpac pode ver e usar a tela sem alguém estar na frente do computador e sem um clique de aceite;
+- o acesso usa uma senha permanente definida pelo TI, não a senha de uso único do Suporte;
+- para encerrar esse tipo de acesso, é preciso desinstalar o Globalpac-Acesso (fechar a janela não encerra o serviço).
+
+Sem esse aceite, use apenas o Globalpac-Suporte, que exige passar o ID e a senha temporária e deixar o programa aberto durante o atendimento.
+
+### Como o TI instala e define a senha
+
+A senha permanente é definida na instalação pelo TI. Ela não vem embutida no `.exe` nem neste repositório.
+
+Instalação silenciosa e senha no mesmo comando (recomendado), em um prompt elevado:
+
+```text
+Globalpac-Acesso-Setup.exe --silent-install --password "SUA-SENHA"
+```
+
+Se a instalação for feita pela janela do instalador (dois cliques no `Globalpac-Acesso-Setup.exe`), defina a senha depois, também como administrador:
+
+```text
+"C:\Program Files\RustDesk-Globalpac-Acesso\RustDesk-Globalpac-Acesso.exe" --password "SUA-SENHA"
+```
+
+Troque `SUA-SENHA` por uma senha forte e exclusiva (não reutilize a senha do Windows) e faça a rotação com o mesmo comando `--password` quando for preciso. O valor da senha não deve ser commitado, colado em issue nem gravado no binário.
+
+Pasta de instalação: `C:\Program Files\RustDesk-Globalpac-Acesso`. Nome interno e serviço: `RustDesk-Globalpac-Acesso`. Convive com o Suporte e com o cliente completo no mesmo PC.
+
+O cliente aceita só a senha permanente (`verification-method=use-permanent-password`) e entra sem clique de aceite (`approve-mode=password`). A equipe se conecta a partir do cliente completo (`Globalpac`).
+
+### Agenda e console da equipe
+
+A agenda (Address Book) e o login de conta continuam desligados neste cliente. No RustDesk, a agenda e a console web de frota dependem do **RustDesk Server Pro** (API/console), não só do hbbs/hbbr de código aberto. Fica como próximo passo: avaliar a console Pro da equipe, apontar o `api-server` e só então ligar a agenda no Acesso. Esta entrega não implementa isso.
+
+## Compilar
+
+O fluxo [Cliente Windows Globalpac](https://github.com/Globalpac/Globalpac-Remote/actions/workflows/windows.yml) corre em cada push na `main` e também pode ser disparado à mão. Quando os `.exe` ficam prontos, o fluxo [Publicar release](https://github.com/Globalpac/Globalpac-Remote/actions/workflows/release.yml) publica a versão definida na variável `VERSION` dos workflows `windows.yml` e `release.yml`. A 1.5.1 é a primeira em que o programa instalado busca a release deste repositório e se substitui. A 1.5.2 troca o rodapé para Desenvolvido por Globalpac. A 1.5.3 troca o ícone e a logo pelo quadrado azul com as duas setas brancas. A 1.5.4 desliga conta, agenda e dispositivos (já definida nos workflows; a última release publicada é a 1.5.3). A 1.5.0 continua publicada e não recebe esse aviso.
+
+- `Globalpac-Suporte-{versão}-x86_64.exe` é o do cliente externo, instalável. Abre o ID e a senha de uso único, no estilo QuickSupport. Não deixa ligar a outros computadores.
+- `Globalpac-Suporte-Portatil-{versão}-x86_64.exe` é o mesmo Suporte sem instalação: só roda.
+- `Globalpac-Acesso-{versão}-x86_64.exe` (e o nome fixo `Globalpac-Acesso-Setup.exe`) é o acesso não assistido, para o TI. Instala o serviço e usa senha permanente definida na instalação.
 - `Globalpac-{versão}-x86_64.exe` é o cliente completo, para a equipe.
 
 O fluxo [Aviso RustDesk oficial](https://github.com/Globalpac/Globalpac-Remote/actions/workflows/upstream.yml) compara a release de `rustdesk/rustdesk` com `RUSTDESK_REF`. Se a oficial for maior, abre uma issue. Não altera a base nem compila.

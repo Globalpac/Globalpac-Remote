@@ -56,7 +56,9 @@ Copy-Item (Join-Path $brand "logo_dark.png") (Join-Path $root "flutter\assets\lo
 $qsOld = 'exe.contains("-qs-") || exe.contains("-qs.exe") || exe.contains("_qs.exe")'
 $qsNew = 'exe.contains("-qs-") || exe.contains("-qs.exe") || exe.contains("_qs.exe") || exe.contains("suporte")'
 Replace-Once -Path (Join-Path $root "src\core_main.rs") -Old $qsOld -New $qsNew
-Replace-Once -Path (Join-Path $root "libs\portable\src\main.rs") -Old $qsOld -New $qsNew
+# No empacotador so o Suporte portatil abre direto no modo Suporte; o instalavel segue para o instalador.
+$qsPackerNew = 'exe.contains("-qs-") || exe.contains("-qs.exe") || exe.contains("_qs.exe") || (exe.contains("suporte") && exe.contains("portatil"))'
+Replace-Once -Path (Join-Path $root "libs\portable\src\main.rs") -Old $qsOld -New $qsPackerNew
 
 $common = Join-Path $root "src\common.rs"
 $marker = @'
@@ -68,15 +70,88 @@ pub fn globalpac_support_marker_exists() -> bool {
         .unwrap_or(false)
 }
 
-pub fn globalpac_update_prefix() -> &'static str {
-    let suporte = std::env::var("GLOBALPAC_SUPPORT").ok().as_deref() == Some("1")
+pub const GLOBALPAC_SUPPORT_APP_NAME: &str = "RustDesk-Globalpac-Suporte";
+
+fn globalpac_portable_name_contains(word: &str) -> bool {
+    std::env::var(PORTABLE_APPNAME_RUNTIME_ENV_KEY)
+        .map(|value| value.to_lowercase().contains(word))
+        .unwrap_or(false)
+}
+
+pub fn globalpac_is_suporte() -> bool {
+    std::env::var("GLOBALPAC_SUPPORT").ok().as_deref() == Some("1")
         || globalpac_support_marker_exists()
+        || globalpac_portable_name_contains("suporte")
         || std::env::current_exe()
             .ok()
             .and_then(|path| path.to_str().map(|value| value.to_lowercase().contains("suporte")))
-            .unwrap_or(false);
-    if suporte {
+            .unwrap_or(false)
+}
+
+pub fn globalpac_is_portatil() -> bool {
+    globalpac_portable_name_contains("portatil")
+}
+
+pub fn globalpac_acesso_marker_exists() -> bool {
+    std::env::current_exe()
+        .ok()
+        .and_then(|exe| exe.parent().map(|dir| dir.join("globalpac-acesso.txt")))
+        .map(|path| path.exists())
+        .unwrap_or(false)
+}
+
+pub const GLOBALPAC_ACESSO_APP_NAME: &str = "RustDesk-Globalpac-Acesso";
+
+pub fn globalpac_is_acesso() -> bool {
+    std::env::var("GLOBALPAC_ACESSO").ok().as_deref() == Some("1")
+        || globalpac_acesso_marker_exists()
+        || globalpac_portable_name_contains("acesso")
+        || std::env::current_exe()
+            .ok()
+            .and_then(|path| path.to_str().map(|value| value.to_lowercase().contains("acesso")))
+            .unwrap_or(false)
+}
+
+// Nome proprio do Suporte e do Acesso: separam IPC, config, log, registro e servico.
+pub fn globalpac_apply_app_name() {
+    if globalpac_is_suporte() {
+        std::env::set_var("GLOBALPAC_SUPPORT", "1");
+        *config::APP_NAME.write().unwrap() = GLOBALPAC_SUPPORT_APP_NAME.to_owned();
+    } else if globalpac_is_acesso() {
+        std::env::set_var("GLOBALPAC_ACESSO", "1");
+        *config::APP_NAME.write().unwrap() = GLOBALPAC_ACESSO_APP_NAME.to_owned();
+    }
+}
+
+// O Suporte instalavel abre o instalador quando ainda nao esta instalado.
+pub fn globalpac_suporte_click_setup() -> bool {
+    #[cfg(windows)]
+    {
+        globalpac_is_suporte() && !globalpac_is_portatil() && !crate::platform::is_installed()
+    }
+    #[cfg(not(windows))]
+    {
+        false
+    }
+}
+
+// O Acesso abre o instalador quando ainda nao esta instalado, para criar o servico.
+pub fn globalpac_acesso_click_setup() -> bool {
+    #[cfg(windows)]
+    {
+        globalpac_is_acesso() && !crate::platform::is_installed()
+    }
+    #[cfg(not(windows))]
+    {
+        false
+    }
+}
+
+pub fn globalpac_update_prefix() -> &'static str {
+    if globalpac_is_suporte() {
         "Globalpac-Suporte"
+    } else if globalpac_is_acesso() {
+        "Globalpac-Acesso"
     } else {
         "Globalpac"
     }
@@ -143,7 +218,9 @@ pub fn globalpac_apply_incoming() {
         hard.insert("conn-type".to_owned(), "incoming".to_owned());
         hard.insert("disable-settings".to_owned(), "Y".to_owned());
         hard.insert("disable-ab".to_owned(), "Y".to_owned());
-        hard.insert("disable-installation".to_owned(), "Y".to_owned());
+        if globalpac_is_portatil() {
+            hard.insert("disable-installation".to_owned(), "Y".to_owned());
+        }
     }
     config::BUILTIN_SETTINGS
         .write()
@@ -155,29 +232,73 @@ pub fn globalpac_apply_incoming() {
     );
 }
 
+pub fn globalpac_password_arg(args: &[String]) -> Option<String> {
+    let mut i = 0;
+    while i < args.len() {
+        if args[i] == "--password" && i + 1 < args.len() {
+            let value = args[i + 1].clone();
+            if !value.is_empty() && !value.starts_with('-') {
+                return Some(value);
+            }
+        }
+        i += 1;
+    }
+    None
+}
+
+// Depois do --silent-install do Acesso, grava a senha passada em --password. Nao registra o valor.
+pub fn globalpac_acesso_after_silent_install(args: &[String], res: &ResultType<()>) {
+    if !globalpac_is_acesso() {
+        return;
+    }
+    if res.is_err() {
+        return;
+    }
+    if let Some(password) = globalpac_password_arg(args) {
+        match crate::ipc::set_permanent_password(password) {
+            Ok(()) => println!("Senha permanente definida."),
+            Err(err) => println!("Falha ao gravar a senha permanente: {err}"),
+        }
+    } else {
+        println!("Instalacao concluida. Defina a senha permanente como administrador:");
+        println!("  RustDesk-Globalpac-Acesso.exe --password \"SUA-SENHA\"");
+    }
+}
+
+pub fn globalpac_apply_acesso() {
+    std::env::set_var("GLOBALPAC_ACESSO", "1");
+    {
+        let mut hard = config::HARD_SETTINGS.write().unwrap();
+        hard.insert("approve-mode".to_owned(), "password".to_owned());
+        hard.insert(
+            "verification-method".to_owned(),
+            "use-permanent-password".to_owned(),
+        );
+    }
+    config::Config::set_option("approve-mode".to_owned(), "password".to_owned());
+    config::Config::set_option(
+        "verification-method".to_owned(),
+        "use-permanent-password".to_owned(),
+    );
+}
+
 '@
 $marker = $marker.Replace("`r`n", "`n")
 Replace-Once -Path $common -Old "fn read_custom_client_advanced_settings(" -New ($marker + "fn read_custom_client_advanced_settings(")
 Replace-Once -Path (Join-Path $root "src\core_main.rs") -Old "_is_quick_support |= !crate::platform::is_installed()" -New "let globalpac_incoming = _is_quick_support || crate::common::globalpac_support_marker_exists();`r`n        if globalpac_incoming {`r`n            _is_quick_support = true;`r`n        }`r`n        crate::common::globalpac_apply_server();`r`n        _is_quick_support |= !crate::platform::is_installed()"
-Replace-Once -Path (Join-Path $root "src\core_main.rs") -Old "crate::portable_service::client::set_quick_support(_is_quick_support);" -New "crate::portable_service::client::set_quick_support(_is_quick_support);`r`n        if globalpac_incoming {`r`n            crate::common::globalpac_apply_incoming();`r`n        }"
+Replace-Once -Path (Join-Path $root "src\core_main.rs") -Old "crate::portable_service::client::set_quick_support(_is_quick_support);" -New "crate::portable_service::client::set_quick_support(_is_quick_support);`r`n        if globalpac_incoming {`r`n            crate::common::globalpac_apply_incoming();`r`n        }`r`n        if crate::common::globalpac_is_acesso() {`r`n            crate::common::globalpac_apply_acesso();`r`n        }"
+
+Replace-Once -Path (Join-Path $root "src\core_main.rs") -Old "crate::load_custom_client();" -New "crate::common::globalpac_apply_app_name();`n    crate::load_custom_client();"
+Replace-Once -Path (Join-Path $root "src\core_main.rs") -Old "let click_setup = cfg!(windows) && args.is_empty() && crate::common::is_setup(&arg_exe);" -New "let click_setup = cfg!(windows)`n        && args.is_empty()`n        && (crate::common::is_setup(&arg_exe) || crate::common::globalpac_suporte_click_setup() || crate::common::globalpac_acesso_click_setup());"
 
 $windows = Join-Path $root "src\platform\windows.rs"
-$installName = @'
-format!("{}\\{}", pf, {
-        let mut name = crate::get_app_name();
-        if std::env::var("GLOBALPAC_SUPPORT").ok().as_deref() == Some("1") {
-            name = format!("{name}-Suporte");
-        }
-        name
-    })
-'@
-Replace-Once -Path $windows -Old 'format!("{}\\{}", pf, crate::get_app_name())' -New ($installName.Replace("`r`n", "`n").TrimEnd())
-
 $copyPrep = @'
 let main_exe = copy_raw_cmd(src_exe, exe, path)?;
     let rename_exe = rename_exe_cmd(src_exe, path)?;
     let support_marker = if std::env::var("GLOBALPAC_SUPPORT").ok().as_deref() == Some("1") {
         format!("echo globalpac>\"{path}\\globalpac-suporte.txt\"")
+    } else if std::env::var("GLOBALPAC_ACESSO").ok().as_deref() == Some("1") {
+        format!("echo globalpac>\"{path}\\globalpac-acesso.txt\"")
     } else {
         String::new()
     };
@@ -190,6 +311,8 @@ copy /Y \"{ORIGIN_PROCESS_EXE}\" \"{path}\\{broker_exe}\"
 '@
 Replace-Once -Path $windows -Old 'copy /Y \"{ORIGIN_PROCESS_EXE}\" \"{path}\\{broker_exe}\"' -New ($copyLine.Replace("`r`n", "`n").TrimEnd())
 Replace-Once -Path $windows -Old 'broker_exe = win_topmost_window::INJECTED_PROCESS_EXE,' -New "broker_exe = win_topmost_window::INJECTED_PROCESS_EXE,`n        rename_exe = rename_exe,`n        support_marker = support_marker,"
+
+Replace-Once -Path (Join-Path $root "src\core_main.rs") -Old 'let res = platform::install_me(options, "".to_owned(), true, debug);' -New ('let res = platform::install_me(options, "".to_owned(), true, debug);' + "`r`n                crate::common::globalpac_acesso_after_silent_install(&args, &res);")
 
 if ([string]::IsNullOrWhiteSpace($env:VERSION)) {
     throw "A variavel VERSION nao esta definida"
