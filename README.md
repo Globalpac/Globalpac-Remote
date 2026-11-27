@@ -5,13 +5,16 @@ O **Globalpac-Suporte** é o programa de acesso remoto da Globalpac para o atend
 ## Como baixar e usar
 
 > **Importante!**
-> Funciona em computadores com **Windows 10 ou superior**.
-> Em servidores, funciona no **Windows Server 2019 ou superior**.
+> No Windows, funciona em computadores com **Windows 10 ou superior**.
+> Em servidores Windows, funciona no **Windows Server 2019 ou superior**.
+> No Linux (x86_64), use o AppImage. Pode ser preciso ter FUSE (`libfuse2` no Ubuntu/Debian).
 
 Há duas formas. Use uma delas:
 
 - **[Baixar o instalador](https://github.com/Globalpac/Globalpac-Remote/releases/latest/download/Globalpac-Suporte-Setup.exe)** (`Globalpac-Suporte-Setup.exe`): fica instalado no computador.
 - **[Baixar a versão portátil](https://github.com/Globalpac/Globalpac-Remote/releases/latest/download/Globalpac-Suporte-Portatil.exe)** (`Globalpac-Suporte-Portatil.exe`): roda sem instalar. É só abrir.
+
+- **[Baixar o AppImage para Linux](https://github.com/Globalpac/Globalpac-Remote/releases/latest/download/Globalpac-Suporte.AppImage)** (`Globalpac-Suporte.AppImage`, também publicado como `Globalpac-Suporte-{versão}-x86_64.AppImage`): roda no Linux sem instalar. Torne o arquivo executável (`chmod +x Globalpac-Suporte.AppImage`) e abra. O nome do arquivo ativa o modo Suporte (ID e senha de uso único).
 
 Não use o arquivo que se chama só `Globalpac-...exe`: esse é o cliente da equipe.
 
@@ -98,7 +101,7 @@ A agenda (Address Book) e o login de conta continuam desligados neste cliente. N
 
 ## Compilar
 
-O fluxo [Cliente Windows Globalpac](https://github.com/Globalpac/Globalpac-Remote/actions/workflows/windows.yml) corre em cada push na `main` e também pode ser disparado à mão. Quando os `.exe` ficam prontos, o fluxo [Publicar release](https://github.com/Globalpac/Globalpac-Remote/actions/workflows/release.yml) publica a versão definida na variável `VERSION` dos workflows `windows.yml` e `release.yml`. A 1.5.1 é a primeira em que o programa instalado busca a release deste repositório e se substitui. A 1.5.2 troca o rodapé para Desenvolvido por Globalpac. A 1.5.3 troca o ícone e a logo pelo quadrado azul com as duas setas brancas. A 1.5.4 desliga conta, agenda e dispositivos (já definida nos workflows; a última release publicada é a 1.5.3). A 1.5.0 continua publicada e não recebe esse aviso.
+O fluxo [Cliente Windows Globalpac](https://github.com/Globalpac/Globalpac-Remote/actions/workflows/windows.yml) corre em cada push na `main` e também pode ser disparado à mão. O fluxo [Cliente Linux Globalpac](https://github.com/Globalpac/Globalpac-Remote/actions/workflows/linux.yml) gera o AppImage x86_64 do Globalpac-Suporte (`.deb` intermediário + AppImage). Quando os artefatos ficam prontos, o fluxo [Publicar release](https://github.com/Globalpac/Globalpac-Remote/actions/workflows/release.yml) publica a versão definida na variável `VERSION` dos workflows `windows.yml`, `linux.yml` e `release.yml`. O job Linux anexa o AppImage à mesma tag, sem reescrever o texto da release do Windows. A 1.5.1 é a primeira em que o programa instalado busca a release deste repositório e se substitui. A 1.5.2 troca o rodapé para Desenvolvido por Globalpac. A 1.5.3 troca o ícone e a logo pelo quadrado azul com as duas setas brancas. A 1.5.4 desliga conta, agenda e dispositivos (já definida nos workflows; a última release publicada é a 1.5.3). A 1.5.0 continua publicada e não recebe esse aviso.
 
 - `Globalpac-Suporte-{versão}-x86_64.exe` é o do cliente externo, instalável. Abre o ID e a senha de uso único, no estilo QuickSupport. Não deixa ligar a outros computadores.
 - `Globalpac-Suporte-Portatil-{versão}-x86_64.exe` é o mesmo Suporte sem instalação: só roda.
