@@ -52,7 +52,7 @@ O que a marca muda:
 - servidor gravado: `rustdesk.globalpac.com.br`
 - chave pública do nosso hbbs
 
-O pacote interno continua a chamar-se `rustdesk.exe`. Na instalação ele é renomeado para `RustDesk-Globalpac.exe`, que é o arquivo do atalho. O Suporte tem nome próprio, `RustDesk-Globalpac-Suporte`, com configuração, IPC e serviço separados, por isso convive com o cliente completo no mesmo PC. Ele instala em `C:\Program Files\RustDesk-Globalpac-Suporte` e permanece só com ID e senha. Não há certificado de assinatura, por isso o Windows SmartScreen avisa na primeira execução.
+O pacote interno continua a chamar-se `rustdesk.exe`. Na instalação ele é renomeado para `RustDesk-Globalpac.exe`, que é o arquivo do atalho. O Suporte tem nome próprio, `RustDesk-Globalpac-Suporte`, com configuração, IPC e serviço separados, por isso convive com o cliente completo no mesmo PC. Ele instala em `C:\Program Files\RustDesk-Globalpac-Suporte` e permanece só com ID e senha. O cliente completo instala em `C:\Program Files\RustDesk-Globalpac`. Não há certificado de assinatura, por isso o Windows SmartScreen avisa na primeira execução.
 
 
 ## Globalpac Acesso (acesso não assistido)
@@ -98,13 +98,33 @@ A agenda (Address Book) e o login de conta continuam desligados neste cliente. N
 
 ## Compilar
 
-O fluxo [Cliente Windows Globalpac](https://github.com/Globalpac/Globalpac-Remote/actions/workflows/windows.yml) corre em cada push na `main` e também pode ser disparado à mão. Quando os `.exe` ficam prontos, o fluxo [Publicar release](https://github.com/Globalpac/Globalpac-Remote/actions/workflows/release.yml) publica a versão definida na variável `VERSION` dos workflows `windows.yml` e `release.yml`. A 1.5.1 é a primeira em que o programa instalado busca a release deste repositório e se substitui. A 1.5.2 troca o rodapé para Desenvolvido por Globalpac. A 1.5.3 troca o ícone e a logo pelo quadrado azul com as duas setas brancas. A 1.5.4 desliga conta, agenda e dispositivos (já definida nos workflows; a última release publicada é a 1.5.3). A 1.5.0 continua publicada e não recebe esse aviso.
+O fluxo [Cliente Windows Globalpac](https://github.com/Globalpac/Globalpac-Remote/actions/workflows/windows.yml) corre em cada push na `main` e também pode ser disparado à mão. Quando os `.exe` ficam prontos, o fluxo [Publicar release](https://github.com/Globalpac/Globalpac-Remote/actions/workflows/release.yml) publica a versão.
+
+Não existe arquivo `VERSION` neste repositório. A versão (hoje `1.5.6`) está na variável de ambiente `VERSION`, **duplicada** em `.github/workflows/windows.yml` e `.github/workflows/release.yml`. Para lançar uma versão nova, suba o valor **nos dois arquivos** (eles precisam ficar iguais), faça push na `main`, espere o `windows.yml` terminar e o `release.yml` publica sozinho via `workflow_run` (somente quando a corrida da `main` conclui com sucesso). Também é possível disparar o `release.yml` à mão, passando o `run_id` da corrida do `windows.yml` que gerou os `.exe`.
+
+O histórico de versões está no [`CHANGELOG.md`](CHANGELOG.md). A licença do binário e o código correspondente do RustDesk 1.5.0 estão no [`NOTICE.md`](NOTICE.md) (AGPL-3.0).
+
+Para atualizar a base do RustDesk: altere `RUSTDESK_REF` em `windows.yml` e em `upstream.yml`, e confira se `brand/apply.ps1` ainda aplica todos os patches (cada substituição exige exatamente uma ocorrência). O README, o `NOTICE.md` e o corpo da release citam a tag da base; atualize esses textos junto. O fluxo [Aviso RustDesk oficial](https://github.com/Globalpac/Globalpac-Remote/actions/workflows/upstream.yml) compara a release de `rustdesk/rustdesk` com `RUSTDESK_REF`. Se a oficial for maior, abre uma issue. Não altera a base nem compila.
+
+O que `brand/apply.ps1` altera no código baixado do RustDesk:
+
+- nome na janela e no instalador: RustDesk-Globalpac (o instalador do Windows não aceita espaço no nome)
+- ícone e logo do site
+- servidor gravado: `rustdesk.globalpac.com.br` (em `libs/hbb_common/src/config.rs`)
+- chave pública do nosso hbbs (no mesmo ficheiro; se o hbbs mudar, troque o valor nesse patch)
+- rodapé **Desenvolvido por Globalpac**
+- conta, agenda e dispositivos desligados (a partir da 1.5.4)
+- modo Suporte / Acesso conforme o nome do ficheiro, o marcador ou a variável de ambiente
+
+O pacote interno continua a chamar-se `rustdesk.exe`. Na instalação ele é renomeado para `RustDesk-Globalpac.exe`, que é o arquivo do atalho. O Suporte tem nome próprio, `RustDesk-Globalpac-Suporte`, com configuração, IPC e serviço separados, por isso convive com o cliente completo no mesmo PC. Ele instala em `C:\Program Files\RustDesk-Globalpac-Suporte` e permanece só com ID e senha. O cliente completo instala em `C:\Program Files\RustDesk-Globalpac`. O Acesso instala em `C:\Program Files\RustDesk-Globalpac-Acesso`. Não há certificado de assinatura, por isso o Windows SmartScreen avisa na primeira execução.
+
+Este cliente RustDesk não tem login de usuário. O SSO do Hermes não se aplica.
+
+Artefatos:
 
 - `Globalpac-Suporte-{versão}-x86_64.exe` é o do cliente externo, instalável. Abre o ID e a senha de uso único, no estilo QuickSupport. Não deixa ligar a outros computadores.
 - `Globalpac-Suporte-Portatil-{versão}-x86_64.exe` é o mesmo Suporte sem instalação: só roda.
 - `Globalpac-Acesso-{versão}-x86_64.exe` (e o nome fixo `Globalpac-Acesso-Setup.exe`) é o acesso não assistido, para o TI. Instala o serviço e usa senha permanente definida na instalação.
 - `Globalpac-{versão}-x86_64.exe` é o cliente completo, para a equipe.
 
-O fluxo [Aviso RustDesk oficial](https://github.com/Globalpac/Globalpac-Remote/actions/workflows/upstream.yml) compara a release de `rustdesk/rustdesk` com `RUSTDESK_REF`. Se a oficial for maior, abre uma issue. Não altera a base nem compila.
-
-A compilação usa o runner do GitHub. Este PC não precisa de Rust, Flutter nem Visual Studio.
+A compilação corre no runner do GitHub Actions. Não é preciso ter Rust, Flutter nem Visual Studio localmente.
